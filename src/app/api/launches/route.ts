@@ -40,6 +40,11 @@ export async function POST(req: NextRequest) {
           launchPhase: t.launchPhase,
           workSourceType: t.workSourceType,
           assignee: t.defaultAssignee,
+          channel: t.channel,
+          dayOffset: t.dayOffset,
+          durationBusinessDays: t.durationBusinessDays,
+          peopleHours: t.peopleHours,
+          measureOfSuccess: t.measureOfSuccess,
           status: 'Backlog',
           dependencies: t.dependencyNames ?? [],
         }))

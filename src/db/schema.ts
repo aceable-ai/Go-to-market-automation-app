@@ -78,6 +78,15 @@ export const gtmTaskTemplates = pgTable('gtm_task_templates', {
   launchPhase: text('launch_phase'),    // Pre-Launch | Soft Launch | Hard Launch | Post-Launch
   workSourceType: text('work_source_type'), // Human | WF: Landing Page Generator | WF: One Pager Generator | WF: Asset Generator
   defaultAssignee: text('default_assignee'),
+  channel: text('channel'),
+  dayOffset: integer('day_offset'),
+  durationBusinessDays: integer('duration_business_days'),
+  peopleHours: decimal('people_hours', { precision: 10, scale: 2 }),
+  measureOfSuccess: text('measure_of_success'),
+  optimizationOpportunity: boolean('optimization_opportunity').default(false),
+  optimizationNotes: text('optimization_notes'),
+  linkedDocs: text('linked_docs'),
+  isTemplate: boolean('is_template').default(false),
   dependencyNames: text('dependency_names').array(),
   sortOrder: integer('sort_order'),
 })
@@ -90,6 +99,11 @@ export const gtmTasks = pgTable('gtm_tasks', {
   launchPhase: text('launch_phase'),
   workSourceType: text('work_source_type'),
   assignee: text('assignee'),
+  channel: text('channel'),
+  dayOffset: integer('day_offset'),
+  durationBusinessDays: integer('duration_business_days'),
+  peopleHours: decimal('people_hours', { precision: 10, scale: 2 }),
+  measureOfSuccess: text('measure_of_success'),
   status: text('status').default('Backlog'), // Backlog | In Progress | Done | Blocked
   dependencies: text('dependencies').array(),
   comments: text('comments'),
@@ -142,8 +156,16 @@ export const personas = pgTable('personas', {
 export const stateRegulatoryRules = pgTable('state_regulatory_rules', {
   id: uuid('id').primaryKey().defaultRandom(),
   state: text('state'),
+  stateName: text('state_name'),
   brand: text('brand'),
   vertical: text('vertical'),
+  status: text('status').default('Todo'),       // Done | Todo
+  preLicenseRequired: boolean('pre_license_required').default(false),
+  stateApprovalRequired: boolean('state_approval_required').default(false),
+  regulatoryBody: text('regulatory_body'),
+  hoursRequired: integer('hours_required'),
+  requiredDisclaimers: text('required_disclaimers'),
+  stateNotes: text('state_notes'),
   adRules: text('ad_rules'),
   disclaimers: text('disclaimers'),
   complianceNotes: text('compliance_notes'),
@@ -153,15 +175,30 @@ export const competitors = pgTable('competitors', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: text('name').notNull(),
   vertical: text('vertical'),
-  pricing: jsonb('pricing'),
-  features: text('features'),
+  coverage: text('coverage'),               // National | Regional
+  states: text('states').array(),
+  priceRange: text('price_range'),
+  promotions: text('promotions'),
+  keyFeatures: text('key_features'),
   strengths: text('strengths'),
   weaknesses: text('weaknesses'),
+  rating: text('rating'),
+  passGuarantee: text('pass_guarantee'),
+  website: text('website'),
+  lastUpdated: date('last_updated'),
+  pricing: jsonb('pricing'),
+  features: text('features'),
 })
 
 export const budgetAllocationRules = pgTable('budget_allocation_rules', {
   id: uuid('id').primaryKey().defaultRandom(),
-  marketPresence: text('market_presence'),
+  name: text('name'),
+  marketPresence: text('market_presence'),   // Strong | Emerging | New
+  vertical: text('vertical'),
+  tofPct: decimal('tof_pct', { precision: 5, scale: 2 }),
+  mofPct: decimal('mof_pct', { precision: 5, scale: 2 }),
+  bofPct: decimal('bof_pct', { precision: 5, scale: 2 }),
+  rationale: text('rationale'),
   allocationGuidelines: jsonb('allocation_guidelines'),
 })
 
@@ -170,6 +207,8 @@ export const pmmAssignments = pgTable('pmm_assignments', {
   pmmName: text('pmm_name'),
   brand: text('brand'),
   vertical: text('vertical'),
+  pmmEmail: text('pmm_email'),
+  slackId: text('slack_id'),
 })
 
 export const notificationLog = pgTable('notification_log', {
