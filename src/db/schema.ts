@@ -181,3 +181,48 @@ export const notificationLog = pgTable('notification_log', {
   message: text('message'),
   sentAt: timestamp('sent_at').defaultNow(),
 })
+
+// ─── Landing Pages ─────────────────────────────────────────────────────────────
+// One row per product × phase per launch.
+// Phase 1 = waitlist (no cart), Phase 2 = cart active.
+// n8n writes content via POST /api/landing-pages.
+// Feed Me pulls from GET /api/feed/landing-pages.
+
+export const landingPages = pgTable('landing_pages', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  launchId: uuid('launch_id').references(() => launches.id, { onDelete: 'cascade' }).notNull(),
+
+  // Identity
+  productName: text('product_name').notNull(),   // e.g. "Property & Casualty"
+  state: text('state'),                           // e.g. "TX"
+  vertical: text('vertical'),                     // e.g. "INS"
+  phase: integer('phase').notNull(),              // 1 = waitlist | 2 = cart
+  slug: text('slug'),                             // URL slug for Craft entry
+
+  // Status
+  status: text('status').default('draft'),        // draft | ready | published
+  cartEnabled: boolean('cart_enabled').default(false),
+  craftEntryId: text('craft_entry_id'),           // populated after Feed Me import
+
+  // Page content — written by n8n, editable in UI
+  pageTitle: text('page_title'),
+  metaTitle: text('meta_title'),
+  metaDescription: text('meta_description'),
+  heroHeadline: text('hero_headline'),
+  heroSubheadline: text('hero_subheadline'),
+  heroCtaText: text('hero_cta_text'),
+  heroCtaUrl: text('hero_cta_url'),
+  bodyContent: text('body_content'),
+  valuePropBullets: jsonb('value_prop_bullets'),  // string[]
+  pricingBlock: jsonb('pricing_block'),            // { msrp, salePrice, promoPrice, promoCode }
+  features: jsonb('features'),                     // string[]
+  faq: jsonb('faq'),                              // { question, answer }[]
+  stateDisclaimer: text('state_disclaimer'),
+  waitlistFormId: text('waitlist_form_id'),        // Phase 1 only
+
+  // Raw payload from n8n — stored in full so nothing is lost
+  rawContent: jsonb('raw_content'),
+
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+})

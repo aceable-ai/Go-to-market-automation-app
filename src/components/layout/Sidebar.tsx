@@ -11,6 +11,7 @@ import {
   PlusCircle,
   Megaphone,
   ChevronLeft,
+  Globe,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -24,6 +25,7 @@ const nav = [
       { name: 'Task Dashboard',       href: '/tasks',        icon: BarChart3 },
       { name: 'GTM Task Tracking',    href: '/tasks/all',    icon: ListChecks },
       { name: 'New Launch',           href: '/launches/new', icon: PlusCircle },
+      { name: 'Landing Pages',        href: '/landing-pages', icon: Globe },
     ],
   },
   {

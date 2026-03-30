@@ -6,7 +6,7 @@ import { eq } from 'drizzle-orm'
 import { formatDate } from '@/lib/utils'
 import { VERTICAL_STYLES, LAUNCH_PHASE_STYLES, TASK_STATUS_STYLES } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import { FileText, ListChecks, ArrowRight } from 'lucide-react'
+import { FileText, ListChecks, ArrowRight, Globe } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -53,10 +53,16 @@ export default async function LaunchPage({ params }: { params: { id: string } })
               )}
             </div>
           </div>
-          <Link href={`/launches/${params.id}/one-pager`} className="btn-primary flex items-center gap-1.5">
-            <FileText className="w-4 h-4" />
-            View One-Pager
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href={`/launches/${params.id}/landing-pages`} className="btn-secondary flex items-center gap-1.5">
+              <Globe className="w-4 h-4" />
+              Landing Pages
+            </Link>
+            <Link href={`/launches/${params.id}/one-pager`} className="btn-primary flex items-center gap-1.5">
+              <FileText className="w-4 h-4" />
+              View One-Pager
+            </Link>
+          </div>
         </div>
       </div>
 
