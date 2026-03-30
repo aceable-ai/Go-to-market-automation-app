@@ -97,7 +97,7 @@ export default function LandingPageEditPage({
 
   if (!page) return <div className="p-6 text-gray-500">Page not found.</div>
 
-  const s = (field: keyof LandingPage) => (page[field] as string) ?? ''
+  const s = (field: keyof LandingPage): string => String(page[field] ?? '')
 
   return (
     <div className="p-6 max-w-3xl">
