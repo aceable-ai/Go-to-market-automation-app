@@ -25,8 +25,8 @@ export default async function TaskDashboardPage() {
     for (const status of allStatuses) {
       row[status] = tasks.filter((t) => t.launchPhase === phase && t.status === status).length
     }
-    row.total = tasks.filter((t) => t.launchPhase === phase).length
-    return { phase, ...row }
+    const total = tasks.filter((t) => t.launchPhase === phase).length
+    return { phase, total, ...row }
   })
 
   return (

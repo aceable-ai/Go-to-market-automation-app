@@ -221,7 +221,7 @@ export default function LandingPageEditPage({
         </div>
 
         {/* Raw content from n8n (read-only) */}
-        {page.rawContent && (
+        {Boolean(page.rawContent) && (
           <div className="card p-5">
             <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Raw n8n payload</h2>
             <pre className="text-xs text-gray-500 bg-gray-50 rounded p-3 overflow-auto max-h-48">
