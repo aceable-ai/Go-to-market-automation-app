@@ -409,7 +409,7 @@ async def review_page(one_pager_id: str):
     row = dict(row)
 
     def field(label, col, multiline=False, required=False):
-        val = row.get(col) or ""
+        val = str(row.get(col) or "")
         star = "⭐ " if required else ""
         if multiline:
             return f"""
