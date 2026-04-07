@@ -33,7 +33,7 @@ export const launches = pgTable('launches', {
 
 export const onePagers = pgTable('one_pagers', {
   id: uuid('id').primaryKey().defaultRandom(),
-  launchId: uuid('launch_id').references(() => launches.id, { onDelete: 'cascade' }).notNull(),
+  launchId: uuid('launch_id').references(() => launches.id, { onDelete: 'cascade' }),
   airtableRecordId: text('airtable_record_id'),
 
   // PMM workflow

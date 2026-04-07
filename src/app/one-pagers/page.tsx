@@ -46,9 +46,13 @@ function ProgressBar({ pct }: { pct: number }) {
 
 export default async function OnePagersPage() {
   const allLaunches = await db.select().from(launches).orderBy(launches.hardLaunchDate)
-  const allPagers = await db.select().from(onePagers)
+  const allPagers = await db.select().from(onePagers).orderBy(onePagers.createdAt)
 
-  const pagerByLaunch = Object.fromEntries(allPagers.map((p) => [p.launchId, p]))
+  const launchById = Object.fromEntries(allLaunches.map((l) => [l.id, l]))
+  const pagerByLaunch = Object.fromEntries(allPagers.filter(p => p.launchId).map((p) => [p.launchId!, p]))
+
+  // One-pagers from n8n (no launch_id) shown separately
+  const standalonePages = allPagers.filter(p => !p.launchId)
 
   const jiraBaseUrl = process.env.JIRA_BASE_URL ?? 'https://aceable.atlassian.net'
 
@@ -57,7 +61,7 @@ export default async function OnePagersPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-semibold text-gray-900">PMM One-Pager Review</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{allLaunches.length} launches</p>
+          <p className="text-sm text-gray-500 mt-0.5">{allPagers.length} one-pagers</p>
         </div>
         <Link href="/launches/new" className="btn-primary">+ New Launch</Link>
       </div>
@@ -122,6 +126,60 @@ export default async function OnePagersPage() {
             )
           })}
         </div>
+      )}
+
+      {/* One-pagers from n8n (no associated launch) */}
+      {standalonePages.length > 0 && (
+        <>
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mt-8 mb-3">From n8n</h2>
+          <div className="space-y-2">
+            {standalonePages.map((pager) => {
+              const pct = completeness(pager as Record<string, unknown>)
+              const pmmStatus = pager.pmmStatus ?? 'draft'
+              const statusStyle = PMM_STATUS_STYLES[pmmStatus] ?? 'bg-gray-100 text-gray-600'
+              const label = pager.airtableRecordId ?? pager.id
+
+              return (
+                <div key={pager.id} className="card p-4 flex items-center gap-4 hover:shadow-md transition-shadow">
+                  <div className="shrink-0 w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center">
+                    <FileText className="w-4 h-4 text-indigo-600" />
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-medium text-gray-900 truncate">{label}</span>
+                      <span className={cn('badge shrink-0', statusStyle)}>{pmmStatus}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-gray-500">
+                      {pager.pmmOwner && <span>{pager.pmmOwner}</span>}
+                      {pager.jiraTicketId && (
+                        <a
+                          href={`${jiraBaseUrl}/browse/${pager.jiraTicketId}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-1 text-purple-600 font-medium hover:underline"
+                        >
+                          {pager.jiraTicketId} <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="w-36 shrink-0">
+                    <p className="text-xs text-gray-400 mb-1">Required fields</p>
+                    <ProgressBar pct={pct} />
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Link href={`/one-pagers/${pager.id}/edit`} className="btn-secondary flex items-center gap-1 text-xs py-1.5 px-3">
+                      <Pencil className="w-3 h-3" /> Edit
+                    </Link>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </>
       )}
     </div>
   )
