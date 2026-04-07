@@ -407,7 +407,7 @@ export function OnePagerStandaloneEditForm({ onePagerId, jiraBaseUrl, initial }:
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => router.push("/one-pagers")`)}
+            onClick={() => router.push('/one-pagers')}
             className="btn-secondary"
           >
             View
