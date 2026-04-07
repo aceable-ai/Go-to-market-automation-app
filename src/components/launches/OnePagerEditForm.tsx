@@ -382,15 +382,6 @@ export function OnePagerEditForm({ launchId, jiraBaseUrl, initial }: Props) {
         <RichField label="Market Data" value={form.marketData} onChange={(v) => set('marketData', v)} rows={3} />
         <RichField label="Salary Data" value={form.salaryData} onChange={(v) => set('salaryData', v)} rows={3} />
 
-        {/* ── App Store ────────────────────────────────────────────── */}
-        <SectionHeader title="App Store Content" />
-
-        <Field label="App Store Subtitle" value={form.appStoreSubtitle} onChange={(v) => set('appStoreSubtitle', v)} />
-        <Field label="App Store Promo Text" value={form.appStorePromoText} onChange={(v) => set('appStorePromoText', v)} />
-        <Field label="App Store Keywords" value={form.appStoreKeywords} onChange={(v) => set('appStoreKeywords', v)} />
-        <RichField label="App Store Description" value={form.appStoreDescription} onChange={(v) => set('appStoreDescription', v)} rows={4} fullWidth />
-        <Field label="Play Store Short Description" value={form.playStoreShortDescription} onChange={(v) => set('playStoreShortDescription', v)} />
-        <RichField label="Play Store Full Description" value={form.playStoreFullDescription} onChange={(v) => set('playStoreFullDescription', v)} rows={4} fullWidth />
 
       </div>
 
