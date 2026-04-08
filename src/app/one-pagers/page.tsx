@@ -137,7 +137,7 @@ export default async function OnePagersPage() {
               const pct = completeness(pager as Record<string, unknown>)
               const pmmStatus = pager.pmmStatus ?? 'draft'
               const statusStyle = PMM_STATUS_STYLES[pmmStatus] ?? 'bg-gray-100 text-gray-600'
-              const label = pager.productName || pager.airtableRecordId || pager.id
+              const label = pager.launchName || pager.airtableRecordId || pager.id
 
               return (
                 <div key={pager.id} className="card p-4 flex items-center gap-4 hover:shadow-md transition-shadow">

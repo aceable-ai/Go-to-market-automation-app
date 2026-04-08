@@ -35,6 +35,7 @@ export const onePagers = pgTable('one_pagers', {
   id: uuid('id').primaryKey().defaultRandom(),
   launchId: uuid('launch_id').references(() => launches.id, { onDelete: 'cascade' }),
   airtableRecordId: text('airtable_record_id'),
+  launchName: text('launch_name'),
 
   // PMM workflow
   pmmStatus: text('pmm_status').default('draft'), // draft | review | approved | pushed
@@ -110,11 +111,6 @@ export const onePagers = pgTable('one_pagers', {
   appStoreKeywords: text('app_store_keywords'),
   playStoreShortDescription: text('play_store_short_description'),
   playStoreFullDescription: text('play_store_full_description'),
-
-  // Legacy fields
-  brandContent: text('brand_content'),
-  productNotes: text('product_notes'),
-  personaMessageMap: text('persona_message_map'),
 
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),

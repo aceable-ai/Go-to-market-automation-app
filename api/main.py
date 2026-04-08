@@ -46,7 +46,7 @@ def map_n8n_record(record: dict) -> dict:
 
     return {
         "airtable_record_id": record.get("record_id"),
-        "product_name": nonempty(record.get("Launch Name")),
+        "launch_name": nonempty(record.get("Launch Name")),
         "executive_summary": nonempty(record.get("Executive Summary")),
         "source_courses_and_bundles": nonempty(record.get("Courses & Bundles")),
         "pricing_table": nonempty(record.get("Pricing Table")),
