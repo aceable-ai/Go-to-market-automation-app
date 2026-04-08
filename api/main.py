@@ -806,17 +806,27 @@ async def get_next_pending_launch():
             (launch_id,)
         )
 
-        # Products for this vertical
-        cur.execute("""
-            SELECT * FROM products
-            WHERE LOWER(vertical) = LOWER(%s) OR 'National' = ANY(state_availability)
-            ORDER BY is_bundle, name
-        """, (vertical,))
-        products = [dict(r) for r in cur.fetchall()]
-
-        # Launch-specific products (if any were added)
+        # Launch-specific products (selected by PMM on the form)
         cur.execute("SELECT * FROM launch_products WHERE launch_id = %s", (launch_id,))
         launch_products_rows = [dict(r) for r in cur.fetchall()]
+        selected_names = [r["product_name"] for r in launch_products_rows if r.get("product_name")]
+
+        # Pull full product details — filter to selected products if PMM chose some,
+        # otherwise fall back to all products for the vertical
+        if selected_names:
+            placeholders = ",".join(["%s"] * len(selected_names))
+            cur.execute(f"""
+                SELECT * FROM products
+                WHERE name IN ({placeholders})
+                ORDER BY is_bundle, name
+            """, selected_names)
+        else:
+            cur.execute("""
+                SELECT * FROM products
+                WHERE LOWER(vertical) = LOWER(%s) OR 'National' = ANY(state_availability)
+                ORDER BY is_bundle, name
+            """, (vertical,))
+        products = [dict(r) for r in cur.fetchall()]
 
         # Brand info
         cur.execute("SELECT * FROM brands WHERE LOWER(name) LIKE LOWER(%s) LIMIT 1", (f"%{brand_name}%",))

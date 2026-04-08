@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
-import { launches, onePagers, gtmTasks, gtmTaskTemplates } from '@/db/schema'
+import { launches, onePagers, gtmTasks, gtmTaskTemplates, launchProducts } from '@/db/schema'
 import { asc } from 'drizzle-orm'
 
 export async function POST(req: NextRequest) {
@@ -22,10 +22,17 @@ export async function POST(req: NextRequest) {
       })
       .returning()
 
-    // 2. Create empty one-pager
-    await db.insert(onePagers).values({ launchId: launch.id })
+    // 2. Save selected products to launch_products
+    if (body.products && body.products.length > 0) {
+      await db.insert(launchProducts).values(
+        body.products.map((name: string) => ({ launchId: launch.id, productName: name }))
+      )
+    }
 
-    // 3. Instantiate all GTM task templates for this launch
+    // 3. Create empty one-pager
+    await db.insert(onePagers).values({ launchId: launch.id, launchName: body.launchName })
+
+    // 4. Instantiate all GTM task templates for this launch
     const templates = await db
       .select()
       .from(gtmTaskTemplates)
@@ -51,7 +58,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // 4. Fire n8n webhook if status is kick-off
+    // 5. Fire n8n webhook if status is kick-off
     if (
       launch.status?.toLowerCase().includes('kick') &&
       process.env.N8N_WEBHOOK_URL
