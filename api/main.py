@@ -770,6 +770,118 @@ async def get_launches():
     return rows
 
 
+@app.get("/api/launches/next-pending")
+async def get_next_pending_launch():
+    """
+    Returns the next launch with status='kick_off_automation' plus all
+    reference data needed by n8n (products, brand, personas, budget rules,
+    PMM assignment). Atomically marks the launch as 'processing' so it
+    cannot be picked up twice.
+    """
+    conn = get_db()
+    try:
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        # Grab the oldest pending launch and lock it
+        cur.execute("""
+            SELECT * FROM launches
+            WHERE status = 'kick_off_automation'
+            ORDER BY created_at ASC
+            LIMIT 1
+            FOR UPDATE SKIP LOCKED
+        """)
+        launch = cur.fetchone()
+        if not launch:
+            return {"pending": False}
+
+        launch = dict(launch)
+        launch_id = launch["id"]
+        vertical = launch.get("vertical") or ""
+        market_presence = launch.get("market_presence") or "Emerging"
+        brand_name = launch.get("brand") or ""
+
+        # Mark as processing immediately
+        cur.execute(
+            "UPDATE launches SET status = 'processing', updated_at = NOW() WHERE id = %s",
+            (launch_id,)
+        )
+
+        # Products for this vertical
+        cur.execute("""
+            SELECT * FROM products
+            WHERE LOWER(vertical) = LOWER(%s) OR 'National' = ANY(state_availability)
+            ORDER BY is_bundle, name
+        """, (vertical,))
+        products = [dict(r) for r in cur.fetchall()]
+
+        # Launch-specific products (if any were added)
+        cur.execute("SELECT * FROM launch_products WHERE launch_id = %s", (launch_id,))
+        launch_products_rows = [dict(r) for r in cur.fetchall()]
+
+        # Brand info
+        cur.execute("SELECT * FROM brands WHERE LOWER(name) LIKE LOWER(%s) LIMIT 1", (f"%{brand_name}%",))
+        brand = dict(cur.fetchone() or {})
+
+        # Personas
+        cur.execute("SELECT * FROM personas")
+        personas = [dict(r) for r in cur.fetchall()]
+
+        # Budget allocation rules (best match: vertical + market_presence)
+        cur.execute("""
+            SELECT * FROM budget_allocation_rules
+            WHERE LOWER(vertical) = LOWER(%s) AND LOWER(market_presence) = LOWER(%s)
+            LIMIT 1
+        """, (vertical, market_presence))
+        budget_rule = dict(cur.fetchone() or {})
+        if not budget_rule:
+            cur.execute("SELECT * FROM budget_allocation_rules WHERE LOWER(vertical) = LOWER(%s) LIMIT 1", (vertical,))
+            budget_rule = dict(cur.fetchone() or {})
+        for k in ("tof_pct", "mof_pct", "bof_pct"):
+            if budget_rule.get(k) is not None:
+                budget_rule[k] = float(budget_rule[k])
+
+        # PMM assignment
+        cur.execute("""
+            SELECT * FROM pmm_assignments
+            WHERE LOWER(vertical) = LOWER(%s)
+            LIMIT 1
+        """, (vertical,))
+        pmm = dict(cur.fetchone() or {})
+
+        # State regulatory rules
+        cur.execute("""
+            SELECT * FROM state_regulatory_rules
+            WHERE state = %s AND LOWER(vertical) = LOWER(%s)
+            LIMIT 1
+        """, (launch.get("state") or "", vertical))
+        state_rules = dict(cur.fetchone() or {})
+
+        # Competitors for this vertical
+        cur.execute("SELECT * FROM competitors WHERE LOWER(vertical) = LOWER(%s)", (vertical,))
+        competitors = [dict(r) for r in cur.fetchall()]
+
+        conn.commit()
+        conn.close()
+
+        return {
+            "pending": True,
+            "launch": launch,
+            "products": products,
+            "launch_products": launch_products_rows,
+            "brand": brand,
+            "personas": personas,
+            "budget_rule": budget_rule,
+            "pmm": pmm,
+            "state_rules": state_rules,
+            "competitors": competitors,
+        }
+
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # ─────────────────────────────────────────────
 # INTAKE FORM: PMM submits new launch
 # ─────────────────────────────────────────────
