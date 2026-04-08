@@ -27,32 +27,87 @@ CREATE TABLE IF NOT EXISTS launches (
 
 CREATE TABLE IF NOT EXISTS one_pagers (
   id                        UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  launch_id                 UUID REFERENCES launches(id) ON DELETE CASCADE,
-  brand_content             TEXT,
-  product_notes             TEXT,
-  executive_summary         TEXT,
-  regulatory_context        TEXT,
-  competitive_landscape     TEXT,
-  audience_insights         TEXT,
-  value_prop_positioning    TEXT,
-  state_specific_messaging  TEXT,
-  pricing_notes             TEXT,
-  final_msrp                JSONB,
-  final_sale_price          JSONB,
-  final_promo_price         JSONB,
-  final_promo_code          TEXT,
-  competitive_position      TEXT,
-  market_data               TEXT,
-  salary_data               TEXT,
-  scope_offer_features      TEXT,
-  seasonal_trends           TEXT,
-  regulatory_notes          TEXT,
-  exploitable_market_gaps   TEXT,
-  messaging_guidelines      TEXT,
-  source_courses_and_bundles TEXT,
-  persona_message_map       TEXT,
-  created_at                TIMESTAMPTZ DEFAULT NOW(),
-  updated_at                TIMESTAMPTZ DEFAULT NOW()
+  launch_id                   UUID REFERENCES launches(id) ON DELETE CASCADE,
+  airtable_record_id          TEXT UNIQUE,
+  launch_name                 TEXT,
+
+  -- PMM workflow
+  pmm_status                  TEXT DEFAULT 'draft',
+  pmm_owner                   TEXT,
+  pmm_notes                   TEXT,
+  jira_ticket_id              TEXT,
+  jira_pushed_at              TIMESTAMPTZ,
+
+  -- Executive Summary
+  position_statement          TEXT,
+  regulatory_status           TEXT,
+  key_market_differentiator   TEXT,
+  launch_goal                 TEXT,
+  executive_summary           TEXT,
+
+  -- Scope & Offer
+  source_courses_and_bundles  TEXT,
+  pricing_table               TEXT,
+  ecom_pages                  TEXT,
+  regulatory_notes            TEXT,
+  regulatory_context          TEXT,
+  scope_offer_features        TEXT,
+  final_promo_code            TEXT,
+  pricing_notes               TEXT,
+  final_msrp                  JSONB,
+  final_sale_price            JSONB,
+  final_promo_price           JSONB,
+  discount_strategy           TEXT,
+
+  -- Competitive
+  competitive_landscape       TEXT,
+  competitive_position        TEXT,
+  exploitable_market_gaps     TEXT,
+  differentiation_points      TEXT,
+
+  -- Audience
+  audience_insights           TEXT,
+  behavioral_insights         TEXT,
+  personas                    TEXT,
+  seasonal_trends             TEXT,
+  objection_handling          TEXT,
+
+  -- Messaging
+  value_prop_positioning      TEXT,
+  brand_positioning_statement TEXT,
+  state_specific_messaging    TEXT,
+  messaging_angles            TEXT,
+  messaging_guidelines        TEXT,
+
+  -- Social proof
+  trust_signals               TEXT,
+  pass_guarantee_terms        TEXT,
+  testimonials                TEXT,
+
+  -- Market & GTM
+  market_presence_status      TEXT,
+  budget_tof_pct              INTEGER,
+  budget_mof_pct              INTEGER,
+  budget_bof_pct              INTEGER,
+  budget_rationale            TEXT,
+  tof_channel_strategy        TEXT,
+  mof_channel_strategy        TEXT,
+  bof_channel_strategy        TEXT,
+
+  -- Research
+  market_data                 TEXT,
+  salary_data                 TEXT,
+
+  -- App store
+  app_store_subtitle          TEXT,
+  app_store_promo_text        TEXT,
+  app_store_description       TEXT,
+  app_store_keywords          TEXT,
+  play_store_short_description TEXT,
+  play_store_full_description TEXT,
+
+  created_at                  TIMESTAMPTZ DEFAULT NOW(),
+  updated_at                  TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS launch_products (
