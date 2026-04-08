@@ -770,6 +770,21 @@ async def get_launches():
     return rows
 
 
+@app.get("/api/debug/pending")
+async def debug_pending():
+    """Returns raw pending launches for troubleshooting."""
+    try:
+        conn = get_db()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute("SELECT id, launch_name, status FROM launches ORDER BY created_at DESC LIMIT 5")
+        rows = [dict(r) for r in cur.fetchall()]
+        conn.commit()
+        conn.close()
+        return {"rows": rows, "count": len(rows)}
+    except Exception as e:
+        return {"error": str(e)}
+
+
 @app.get("/api/launches/next-pending")
 async def get_next_pending_launch():
     """
