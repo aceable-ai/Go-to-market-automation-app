@@ -782,16 +782,22 @@ async def get_next_pending_launch():
     try:
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-        # Grab the oldest pending launch and lock it
+        # Grab and immediately claim the oldest pending launch
         cur.execute("""
-            SELECT * FROM launches
-            WHERE status = 'kick_off_automation'
-            ORDER BY created_at ASC
-            LIMIT 1
-            FOR UPDATE SKIP LOCKED
+            UPDATE launches
+            SET status = 'processing', updated_at = NOW()
+            WHERE id = (
+                SELECT id FROM launches
+                WHERE LOWER(REPLACE(status, ' ', '_')) = 'kick_off_automation'
+                ORDER BY created_at ASC
+                LIMIT 1
+            )
+            RETURNING *
         """)
         launch = cur.fetchone()
         if not launch:
+            conn.commit()
+            conn.close()
             return {"pending": False}
 
         launch = dict(launch)
@@ -799,12 +805,6 @@ async def get_next_pending_launch():
         vertical = launch.get("vertical") or ""
         market_presence = launch.get("market_presence") or "Emerging"
         brand_name = launch.get("brand") or ""
-
-        # Mark as processing immediately
-        cur.execute(
-            "UPDATE launches SET status = 'processing', updated_at = NOW() WHERE id = %s",
-            (launch_id,)
-        )
 
         # Launch-specific products (selected by PMM on the form)
         cur.execute("SELECT * FROM launch_products WHERE launch_id = %s", (launch_id,))
