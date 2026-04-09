@@ -63,6 +63,8 @@ def map_n8n_record(record: dict) -> dict:
         "objection_handling": nonempty(record.get("Objection Handling")),
         "differentiation_points": nonempty(record.get("Differentiation Points")),
         "trust_signals": nonempty(record.get("Social Proof & Trust Signals")),
+        "behavioral_insights": nonempty(record.get("Behavioral Insights")),
+        "brand_positioning_statement": nonempty(record.get("Brand Positioning Statement")),
         "market_data": nonempty(record.get("Market Data")),
         "salary_data": nonempty(record.get("Salary Data")),
         "final_msrp": record.get("Final MSRP"),
@@ -80,7 +82,7 @@ def map_n8n_record(record: dict) -> dict:
         "tof_channel_strategy": nonempty(record.get("ToF Channel Strategy")),
         "mof_channel_strategy": nonempty(record.get("MoF Channel Strategy")),
         "bof_channel_strategy": nonempty(record.get("BoF Channel Strategy")),
-        "pass_guarantee_terms": nonempty(record.get("Pass Guarantee")),
+        "pass_guarantee_terms": nonempty(record.get("Competitor Pass Guarantees")),
         "pmm_owner": nonempty(record.get("PMM Owner")),
         "seasonal_trends": nonempty(record.get("Seasonal Trends")),
         "app_store_subtitle": nonempty(record.get("App Store Subtitle (Apple)")),
@@ -296,8 +298,9 @@ async def receive_n8n(request: Request):
                     elif isinstance(v, (dict, list)):
                         final_vals.append(json.dumps(v))
                     else:
-                        # Plain string (e.g. "Life-Only: $229 | ...") — wrap as JSON string
-                        final_vals.append(json.dumps(str(v)))
+                        # Plain string (e.g. "Life-Only: $229 | ...") — store as {value: "..."} so
+                        # the Next.js form can read it via finalMsrp?.value
+                        final_vals.append(json.dumps({"value": str(v)}))
                 else:
                     final_vals.append(v)
 
