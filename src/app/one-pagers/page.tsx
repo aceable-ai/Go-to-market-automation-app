@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm'
 import { cn, formatDate } from '@/lib/utils'
 import { VERTICAL_STYLES } from '@/lib/constants'
 import { FileText, Pencil, ChevronRight, ExternalLink } from 'lucide-react'
+import { DeleteOnePagerButton } from '@/components/launches/DeleteOnePagerButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -115,6 +116,7 @@ export default async function OnePagersPage() {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
+                  {pager && <DeleteOnePagerButton onePagerId={pager.id} />}
                   <Link href={`/launches/${launch.id}/one-pager/edit`} className="btn-secondary flex items-center gap-1 text-xs py-1.5 px-3">
                     <Pencil className="w-3 h-3" /> Edit
                   </Link>
@@ -171,6 +173,7 @@ export default async function OnePagersPage() {
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
+                    <DeleteOnePagerButton onePagerId={pager.id} />
                     <Link href={`/one-pagers/${pager.id}/edit`} className="btn-secondary flex items-center gap-1 text-xs py-1.5 px-3">
                       <Pencil className="w-3 h-3" /> Edit
                     </Link>
