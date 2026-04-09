@@ -314,10 +314,28 @@ async def receive_n8n(request: Request):
             """, final_vals)
 
             row = cur.fetchone()
+            one_pager_id = str(row["id"])
+            airtable_rec_id = row["airtable_record_id"]
             if row["is_insert"]:
-                inserted.append(str(row["id"]))
+                inserted.append(one_pager_id)
             else:
-                updated.append(str(row["id"]))
+                updated.append(one_pager_id)
+
+            # Link one_pager.launch_id back to the launch and mark it complete
+            if airtable_rec_id:
+                cur.execute("""
+                    UPDATE one_pagers
+                    SET launch_id = launches.id
+                    FROM launches
+                    WHERE launches.id::text = %s
+                      AND one_pagers.id = %s
+                      AND one_pagers.launch_id IS NULL
+                """, (airtable_rec_id, one_pager_id))
+                cur.execute("""
+                    UPDATE launches
+                    SET status = 'automation_complete', updated_at = NOW()
+                    WHERE id::text = %s AND status = 'processing'
+                """, (airtable_rec_id,))
 
         conn.commit()
     except Exception as e:
