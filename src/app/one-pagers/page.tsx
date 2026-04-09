@@ -6,6 +6,7 @@ import { cn, formatDate } from '@/lib/utils'
 import { VERTICAL_STYLES } from '@/lib/constants'
 import { FileText, Pencil, ChevronRight, ExternalLink } from 'lucide-react'
 import { DeleteOnePagerButton } from '@/components/launches/DeleteOnePagerButton'
+import { DeleteLaunchButton } from '@/components/launches/DeleteLaunchButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -116,7 +117,7 @@ export default async function OnePagersPage() {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  {pager && <DeleteOnePagerButton onePagerId={pager.id} />}
+                  <DeleteLaunchButton launchId={launch.id} />
                   <Link href={`/launches/${launch.id}/one-pager/edit`} className="btn-secondary flex items-center gap-1 text-xs py-1.5 px-3">
                     <Pencil className="w-3 h-3" /> Edit
                   </Link>
