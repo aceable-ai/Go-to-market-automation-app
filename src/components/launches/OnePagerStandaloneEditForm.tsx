@@ -150,6 +150,7 @@ export function OnePagerStandaloneEditForm({ onePagerId, jiraBaseUrl, initial }:
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [pushing, setPushing] = useState(false)
+  const [regenerating, setRegenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const [form, setForm] = useState({
@@ -232,6 +233,22 @@ export function OnePagerStandaloneEditForm({ onePagerId, jiraBaseUrl, initial }:
       setError('Failed to save. Please try again.')
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function handleRegenerate() {
+    if (!confirm('This will re-queue the launch for AI regeneration. Any existing one-pager data will be overwritten when the pipeline finishes. Continue?')) return
+    setRegenerating(true)
+    setError(null)
+    try {
+      const res = await fetch(`/api/one-pagers/${onePagerId}/regenerate`, { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Failed to queue regeneration')
+      router.refresh()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to queue regeneration')
+    } finally {
+      setRegenerating(false)
     }
   }
 
@@ -396,6 +413,15 @@ export function OnePagerStandaloneEditForm({ onePagerId, jiraBaseUrl, initial }:
           <span className="text-xs text-gray-400 ml-2">⭐ = required before Jira push</span>
         </div>
         <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleRegenerate}
+            disabled={regenerating || saving || pushing}
+            className="btn-secondary flex items-center gap-2 disabled:opacity-60 text-purple-700 border-purple-300 hover:bg-purple-50"
+          >
+            {regenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+            {regenerating ? 'Queuing...' : 'Regenerate Brief'}
+          </button>
           <button
             type="button"
             onClick={() => router.push('/one-pagers')}

@@ -287,11 +287,17 @@ async def receive_n8n(request: Request):
                 f"%s::jsonb" if c in ("final_msrp", "final_sale_price", "final_promo_price") else "%s"
                 for c in cols
             )
-            # Convert dicts to JSON strings for jsonb columns
+            # Convert values to JSON strings for jsonb columns
             final_vals = []
             for c, v in zip(cols, vals):
-                if c in ("final_msrp", "final_sale_price", "final_promo_price") and isinstance(v, dict):
-                    final_vals.append(json.dumps(v))
+                if c in ("final_msrp", "final_sale_price", "final_promo_price"):
+                    if v is None:
+                        final_vals.append(None)
+                    elif isinstance(v, (dict, list)):
+                        final_vals.append(json.dumps(v))
+                    else:
+                        # Plain string (e.g. "Life-Only: $229 | ...") — wrap as JSON string
+                        final_vals.append(json.dumps(str(v)))
                 else:
                     final_vals.append(v)
 
