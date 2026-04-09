@@ -317,10 +317,6 @@ export function OnePagerStandaloneEditForm({ onePagerId, jiraBaseUrl, initial }:
         {/* ── Executive Summary ────────────────────────────────────── */}
         <SectionHeader title="1. Executive Summary" />
 
-        <Field label="Position Statement" value={form.positionStatement} onChange={(v) => set('positionStatement', v)} required />
-        <Field label="Regulatory Status" value={form.regulatoryStatus} onChange={(v) => set('regulatoryStatus', v)} required />
-        <Field label="Key Market Differentiator" value={form.keyMarketDifferentiator} onChange={(v) => set('keyMarketDifferentiator', v)} />
-        <Field label="Launch Goal" value={form.launchGoal} onChange={(v) => set('launchGoal', v)} />
         <RichField label="Executive Summary" value={form.executiveSummary} onChange={(v) => set('executiveSummary', v)} rows={4} fullWidth required />
 
         {/* ── Scope & Offer ────────────────────────────────────────── */}
