@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Check, Loader2, ExternalLink } from 'lucide-react'
+import { Check, Loader2, ExternalLink, Download } from 'lucide-react'
 
 interface OnePager {
   id?: string
@@ -418,6 +418,12 @@ export function OnePagerStandaloneEditForm({ onePagerId, jiraBaseUrl, initial }:
             {regenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
             {regenerating ? 'Queuing...' : 'Regenerate Brief'}
           </button>
+          <a
+            href={`/api/one-pagers/${onePagerId}/download`}
+            className="btn-secondary flex items-center gap-2"
+          >
+            <Download className="w-4 h-4" /> Download
+          </a>
           <button
             type="button"
             onClick={() => router.push('/one-pagers')}
