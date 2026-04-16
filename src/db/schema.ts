@@ -172,10 +172,14 @@ export const assets = pgTable('assets', {
   id: uuid('id').primaryKey().defaultRandom(),
   launchId: uuid('launch_id').references(() => launches.id, { onDelete: 'cascade' }),
   assetName: text('asset_name'),
-  assetType: text('asset_type'),
-  channel: text('channel'),
+  assetType: text('asset_type'),       // Email | Social | Display | Video | Landing Page | Print
+  channel: text('channel'),             // Meta | Google | TikTok | Email | SMS | YouTube | LinkedIn
   persona: text('persona'),
-  status: text('status').default('Pending'),
+  copy: text('copy'),
+  jiraTicket: text('jira_ticket'),
+  status: text('status').default('Pending'), // Pending | In Progress | Ready | Picked Up
+  pickedUp: boolean('picked_up').default(false),
+  archived: boolean('archived').default(false),
   derivativeOf: uuid('derivative_of'),
   createdAt: timestamp('created_at').defaultNow(),
 })
